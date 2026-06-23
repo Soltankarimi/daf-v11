@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="DAF-V11">
+<meta name="theme-color" content="#1d4ed8">
+<title>DAF-V11 — DenteKidz</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#eef1f5;color:#1a2230;padding:16px 12px 80px;min-height:100vh}
+.card{background:#fff;border-radius:10px;border:1.5px solid #d4d8df;padding:14px;margin-bottom:12px}
+.card-dark{background:#1a2230;color:#fff;border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+label{font-size:11px;font-weight:600;color:#5b6472;display:block;margin-bottom:3px}
+input,select{width:100%;padding:8px 9px;font-size:14px;border-radius:6px;border:1.5px solid #d4d8df;background:#fff;color:#1a2230;outline:none;-webkit-appearance:none}
+select{font-weight:700;font-family:ui-monospace,monospace}
+.btn{display:inline-block;padding:9px 14px;font-size:13px;font-weight:700;border-radius:7px;border:1.5px solid #d4d8df;background:#fff;color:#3a3f47;cursor:pointer;white-space:nowrap}
+.btn-primary{background:#1d4ed8;border-color:#1d4ed8;color:#fff}
+.btn-subtle{background:#f1f2f4;border-color:#e6e9ed;color:#5b6472}
+.btn-warn{background:#fff7e6;border-color:#f0d999;color:#92660a}
+.btn-danger{background:#b3261e;border-color:#b3261e;color:#fff}
+.btn:disabled{background:#f5f6f8;border-color:#e2e5e9;color:#b3b8c0;cursor:not-allowed}
+.field-group{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.field-box{display:flex;flex-direction:column;min-width:80px}
+.field-box select{font-size:13px;padding:6px 7px}
+.auto-tag{font-size:9px;color:#a8731f;margin-top:2px}
+.saved-row{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;background:#f7f9fb;border:1px solid #e6e9ed;margin-bottom:5px;font-family:ui-monospace,monospace;font-size:11px;overflow-x:auto}
+.saved-row .tooth-num{font-weight:800;color:#1d4ed8;min-width:32px;flex-shrink:0}
+.saved-row .spacer{flex:1}
+.saved-row button{font-size:10px;padding:2px 7px;border-radius:4px;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.timer{font-family:ui-monospace,monospace;font-size:18px;font-weight:800;background:#fff;padding:8px 12px;border-radius:8px;border:1.5px solid #d4d8df;text-align:center;flex-shrink:0}
+.session-bar{display:grid;grid-template-columns:1fr 1fr 1fr auto;background:#f7f9fb;border-radius:10px;border:1.5px solid #e2e6ec;margin-bottom:12px;overflow:hidden}
+.session-cell{padding:8px 10px;border-right:1px solid #e2e6ec}
+.session-cell:last-child{border-right:none;display:flex;align-items:center;padding:6px 8px}
+.session-label{font-size:9px;font-weight:700;color:#8a92a0;margin-bottom:2px;text-transform:uppercase;letter-spacing:.03em}
+.session-val{font-family:ui-monospace,monospace;font-weight:700;color:#2a3550;font-size:11px}
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;margin-right:4px;margin-bottom:3px}
+.badge-info{background:#eaf2ff;color:#1d4ed8;border:1px solid #bfd7ff}
+.badge-warn{background:#fff7e6;color:#92660a;border:1px solid #f0d999}
+.err{font-size:12px;color:#b3261e;font-weight:600;margin-bottom:4px}
+.warn-box{background:#fff7e6;border:1px solid #f0d999;border-radius:6px;padding:8px 10px;margin-bottom:8px}
+.frame-locked{background:#eaf2ff;border:1.5px solid #bfd7ff;border-radius:10px;padding:9px 12px;margin-bottom:12px;font-size:12px}
+.modal-overlay{position:fixed;inset:0;background:rgba(20,24,32,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:100}
+.modal{background:#fff;border-radius:14px;padding:24px;max-width:380px;width:100%;border:1.5px solid #d4d8df;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.incomplete{font-size:11px;color:#8a8f98;margin-bottom:6px}
+h1{font-size:19px;font-weight:800;margin:0}
+.subtitle{font-size:11px;color:#6a7280;margin-top:2px;margin-bottom:14px}
+.flex{display:flex}
+.gap8{gap:8px}
+.gap12{gap:12px}
+.mb10{margin-bottom:10px}
+.mb12{margin-bottom:12px}
+.mono{font-family:ui-monospace,monospace;font-weight:700}
+.import-ok{background:#e8f5e9;border:1.5px solid #a5d6a7;border-radius:8px;padding:10px;margin-top:10px;font-size:13px;font-weight:700;color:#2e7d32}
+.import-warn{background:#fff7e6;border:1.5px solid #f0d999;border-radius:8px;padding:10px;margin-top:10px;font-size:13px;font-weight:700;color:#92660a}
+.import-err{background:#fdecec;border:1.5px solid #f3b9b6;border-radius:8px;padding:10px;margin-top:10px;font-size:13px;font-weight:700;color:#b3261e}
+.save-confirm{background:#e8f5e9;border:1.5px solid #a5d6a7;border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:13px;font-weight:700;color:#2e7d32}
+.draft-saved{font-weight:700;font-size:11px;transition:opacity .3s;white-space:nowrap}
+details summary{font-size:12px;font-weight:600;color:#6a7280;cursor:pointer;padding:4px 0}
+/* iOS safe area */
+body{padding-bottom:max(80px, calc(80px + env(safe-area-inset-bottom)))}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+'use strict';
+// ============================================================
+// SERVICE WORKER REGISTRATION
+// ============================================================
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
+
+// ============================================================
+// PERSISTENCE — IndexedDB
+// ============================================================
+const DB_NAME='dentekidz_daf_v11',DB_VER=1,STORE='session',KEY='current_session';
+let _idb=null;
+function idbAvail(){try{return!!window.indexedDB}catch(e){return false}}
+function openDB(){
+  if(_idb)return Promise.resolve(_idb);
+  return new Promise((res,rej)=>{
+    const r=window.indexedDB.open(DB_NAME,DB_VER);
+    r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(STORE))r.result.createObjectStore(STORE)};
+    r.onsuccess=()=>{_idb=r.result;res(_idb)};
+    r.onerror=()=>rej(r.error);
+  });
+}
+async function idbSave(data){
+  if(!idbAvail())return false;
+  try{const db=await openDB();return await new Promise(res=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(data,KEY);tx.oncomplete=()=>res(true);tx.onerror=()=>res(false)})}
+  catch(e){return false}
+}
+async function idbLoad(){
+  if(!idbAvail())return null;
+  try{const db=await openDB();return await new Promise(res=>{const tx=db.transaction(STORE,'readonly');const r=tx.objectStore(STORE).get(KEY);r.onsuccess=()=>res(r.result||null);r.onerror=()=>res(null)})}
+  catch(e){return null}
+}
+async function idbClear(){
+  if(!idbAvail())return;
+  try{const db=await openDB();await new Promise(res=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).delete(KEY);tx.oncomplete=res;tx.onerror=res})}
+  catch(e){}
+}
+
+// ============================================================
+// CODE TABLES
+// ============================================================
+const CODES={
+  Visibility:['S0','S1','S2','S3','S4'],Tooth_Type:['P','E','R','X'],
+  Missing_Code:['0','M0','M1'],Eruption:['E0','E1','E2','E3','E4','EX'],
+  Caries:['C0','C1','C2','C3','CX'],Restoration:['RT0','RT1','RT2','RT3','RT4','RT5','RTX'],
+  Plaque:['P0','P1','P2','P3','PX'],Gingivitis:['G0','G1','G2','G3','GX'],
+  Recession:['R0','R1','RX'],Alignment:['AL0','AL1','AL2','AL3','AL4','AL5','ALX'],
+  BBO:['Y','N'],Wear:['W0','W1','W2','W3','WX'],Tartar:['TS0','TS1','TS2','TS3','TSX'],
+  View:['OCC','BUC','LIN','ANT','CLU'],Region:['AN','PR','PL','FAM','FAMX'],
+  Camera_Angle:['NE','BA','LI','FR','FL','F'],Jaw:['MX','MD'],
+  Frame_Coverage:['F1','F2','F3'],Image_Classification:['PRIMARY','SECONDARY_IMAGE','REJECTED_IMAGE']
+};
+const FDI_PRI=[55,54,53,52,51,61,62,63,64,65,85,84,83,82,81,71,72,73,74,75];
+const FDI_PER=[18,17,16,15,14,13,12,11,21,22,23,24,25,26,27,28,48,47,46,45,44,43,42,41,31,32,33,34,35,36,37,38];
+const TOOTH_NUMS=['X',...FDI_PER,...FDI_PRI].map(String);
+const TOOTH_FIELDS=['Tooth_Number','Visibility','Tooth_Type','Missing_Code','Eruption','Caries','Restoration','Plaque','Gingivitis','Recession','Alignment','BBO','Wear','Tartar'];
+const FRAME_FIELDS=['Image_ID','View','Region','Camera_Angle','Jaw','Frame_Coverage'];
+const LBL={Tooth_Number:'Tooth#',Visibility:'Vis',Tooth_Type:'Type',Missing_Code:'Miss',Eruption:'Erupt',Caries:'Caries',Restoration:'Resto',Plaque:'Plaque',Gingivitis:'Ging',Recession:'Reces',Alignment:'Align',BBO:'BBO',Wear:'Wear',Tartar:'Tartar',Image_ID:'Image ID',View:'View',Region:'Region',Camera_Angle:'Cam∠',Jaw:'Jaw',Frame_Coverage:'Frame'};
+const X_FIELDS=['Caries','Restoration','Plaque','Gingivitis','Recession','Alignment','Wear','Tartar'];
+const X_EQ={Caries:'CX',Restoration:'RTX',Plaque:'PX',Gingivitis:'GX',Recession:'RX',Alignment:'ALX',Wear:'WX',Tartar:'TSX'};
+const EXPORT_COLS=['DKZ_Code','Patient_Name','Image_ID','View','Region','Camera_Angle','Jaw','Frame_Coverage','Tooth_Number','Visibility','Tooth_Type','Missing_Code','Eruption','Caries','Restoration','Plaque','Gingivitis','Recession','Alignment','BBO','Wear','Tartar','Annotator','Examiner_ID','Annotation_Round','Date','Image_Classification','Image_Note','Any','Row_ID','AutoTimestamp','Primary_Image_ID'];
+
+// ============================================================
+// STATE
+// ============================================================
+function uid(){return crypto.randomUUID()}
+function emptyTooth(){return{uuid:uid(),Tooth_Number:'',Visibility:'',Tooth_Type:'',Missing_Code:'0',Eruption:'',Caries:'',Restoration:'',Plaque:'',Gingivitis:'',Recession:'',Alignment:'',BBO:'',Wear:'',Tartar:'',Any:'',Row_ID:'',AutoTimestamp:'',_auto:{}}}
+function emptyFrame(){return{Image_ID:'',View:'',Region:'',Camera_Angle:'',Jaw:'',Frame_Coverage:'',Image_Classification:'',Image_Note:'',Primary_Image_ID:''}}
+function mkAudit(rec,field,from,to,by,reason,type){return{audit_id:uid(),record_uuid:rec,field,original:from??'',corrected:to??'',changed_by:by,timestamp:new Date().toISOString(),reason,change_type:type}}
+
+let S={
+  phase:'checking',recovered:null,
+  patient:{DKZ_Code:'',Patient_Name:''},patientLocked:false,
+  frame:emptyFrame(),frameLocked:false,prevFrame:null,
+  examiner:'Dr. Tabari',round:'1',
+  savedTeeth:[],auditLog:[],
+  current:emptyTooth(),editingUuid:null,dupWarn:null,
+  lastSavedAt:null,startTime:Date.now(),elapsed:0,
+  draftSaved:false,toothConfirm:null,
+  showDKZModal:false,showPostExport:false,importResult:null,
+  rowSeq:0,_ackWarn:false,
+};
+
+// ============================================================
+// RULES
+// ============================================================
+function cascade(tooth,field,val){
+  const t={...tooth,[field]:val},auto={...tooth._auto};
+  if(field==='Visibility'){
+    if(val==='S0'){X_FIELDS.forEach(f=>{t[f]=X_EQ[f];auto[f]='S0'})}
+    else{X_FIELDS.forEach(f=>{if(auto[f]==='S0'){t[f]='';delete auto[f]}})}
+  }
+  if(field==='Tooth_Type'){
+    if(val==='X'){X_FIELDS.forEach(f=>{t[f]=X_EQ[f];auto[f]='X'});t.Missing_Code='0'}
+    else if(val==='R'){t.Missing_Code='0';if(!t.Caries||auto.Caries){t.Caries='C3';auto.Caries='R'}
+      X_FIELDS.forEach(f=>{if(f!=='Caries'&&auto[f]==='X'){t[f]='';delete auto[f]}})}
+    else{X_FIELDS.forEach(f=>{if(auto[f]==='X'){t[f]='';delete auto[f]}});if(auto.Caries==='R'){t.Caries='';delete auto.Caries}}
+  }
+  t._auto=auto;return t;
+}
+function validate(tooth){
+  const errs=[],warns=[],badges=[];
+  if(tooth.Tooth_Type==='R'){badges.push({t:'ROOT REMNANT',c:'info'});if(tooth.Missing_Code&&tooth.Missing_Code!=='0')errs.push('Root Remnant cannot carry Missing_Code (R-06).')}
+  if(tooth.Tooth_Number==='X'){badges.push({t:'Excluded DMFT',c:'warn'});if(!tooth.Any||!tooth.Any.trim())errs.push('Tooth_Number=X requires Any field (R-05).')}
+  if(tooth.Visibility==='S1')warns.push('S1 — confirm assessability.');
+  const req=['Tooth_Number','Visibility','Tooth_Type','Eruption','Caries','Restoration','Plaque','Gingivitis','Recession','Alignment','BBO','Wear','Tartar'];
+  return{errs,warns,badges,inc:req.filter(f=>!tooth[f])};
+}
+
+// ============================================================
+// SAVE DEBOUNCE
+// ============================================================
+let _saveT=null,_draftT=null;
+function schedSave(){
+  if(_saveT)clearTimeout(_saveT);
+  _saveT=setTimeout(async()=>{
+    const ok=await idbSave({...S,phase:'ready',recovered:null,savedAtWallClock:Date.now()});
+    if(ok&&S.savedTeeth.length>0){
+      S.draftSaved=true;renderSessionBar();
+      if(_draftT)clearTimeout(_draftT);
+      _draftT=setTimeout(()=>{S.draftSaved=false;renderSessionBar()},1800);
+    }
+  },500);
+}
+
+// Timer
+setInterval(()=>{
+  S.elapsed=Math.floor((Date.now()-S.startTime)/1000);
+  const el=document.getElementById('timer');
+  if(el){const m=Math.floor(S.elapsed/60),s=S.elapsed%60;el.textContent=p(m)+':'+p(s);el.style.color=S.elapsed>900?'#b3261e':'#1d4ed8'}
+},1000);
+function p(n){return String(n).padStart(2,'0')}
+function ft(ts){if(!ts)return'—';return new Date(ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})}
+function fd(ts){if(!ts)return'';return new Date(ts).toLocaleDateString([],{year:'numeric',month:'2-digit',day:'2-digit'})}
+
+// ============================================================
+// PARSERS
+// ============================================================
+function parseCSV(text){
+  const lines=text.split(/\r?\n/).filter(l=>l.trim());
+  if(lines.length<2)return[];
+  const hdr=lines[0].split(',').map(h=>h.replace(/^"|"$/g,'').trim());
+  return lines.slice(1).map(line=>{
+    const vals=[];let cur='',inQ=false;
+    for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){inQ=!inQ}else if(c===','&&!inQ){vals.push(cur);cur=''}else{cur+=c}}
+    vals.push(cur);const obj={};hdr.forEach((h,i)=>{obj[h]=(vals[i]||'').replace(/^"|"$/g,'')});return obj;
+  });
+}
+function parseXML(text){
+  const doc=new DOMParser().parseFromString(text,'application/xml');
+  const NS='urn:schemas-microsoft-com:office:spreadsheet';
+  const rows=Array.from(doc.getElementsByTagNameNS(NS,'Row'));
+  if(!rows.length)return[];
+  const hdr=Array.from(rows[0].getElementsByTagNameNS(NS,'Cell')).map(c=>{const d=c.getElementsByTagNameNS(NS,'Data')[0];return d?(d.textContent||'').trim():''});
+  const res=[];
+  for(let i=1;i<rows.length;i++){
+    const obj={};let ci=0;
+    Array.from(rows[i].getElementsByTagNameNS(NS,'Cell')).forEach(cell=>{
+      const idx=cell.getAttributeNS(NS,'Index');if(idx)ci=parseInt(idx,10)-1;
+      const d=cell.getElementsByTagNameNS(NS,'Data')[0];obj[hdr[ci]]=d?(d.textContent||''):'';ci++;
+    });
+    hdr.forEach(h=>{if(!(h in obj))obj[h]=''});res.push(obj);
+  }
+  return res;
+}
+
+// ============================================================
+// EXPORT
+// ============================================================
+function esc(v){return/[,"\n]/.test(String(v??''))?`"${String(v).replace(/"/g,'""')}"`:String(v??'')}
+function toCSV(){return[EXPORT_COLS.join(','),...S.savedTeeth.map(t=>EXPORT_COLS.map(c=>esc(t[c])).join(','))].join('\n')}
+function dlFile(content,name,mime){const b=new Blob([content],{type:mime});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u)}
+function doExportXLS(){
+  const hr=`<Row>${EXPORT_COLS.map(c=>`<Cell><Data ss:Type="String">${esc(c)}</Data></Cell>`).join('')}</Row>`;
+  const dr=S.savedTeeth.map(t=>`<Row>${EXPORT_COLS.map(c=>`<Cell><Data ss:Type="String">${esc(t[c])}</Data></Cell>`).join('')}</Row>`).join('');
+  const xml=`<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="MASTER_V21"><Table>${hr}${dr}</Table></Worksheet></Workbook>`;
+  dlFile(xml,`MASTER_V21_${S.patient.DKZ_Code||'session'}.xls`,'application/vnd.ms-excel');
+  S.auditLog.push(mkAudit('SESSION','export','','XLS',S.examiner,'Export XLS','export_event'));
+  S.showPostExport=true;render();
+}
+function doExportCSV(){
+  dlFile(toCSV(),`MASTER_V21_${S.patient.DKZ_Code||'session'}.csv`,'text/csv;charset=utf-8;');
+  S.auditLog.push(mkAudit('SESSION','export','','CSV',S.examiner,'Export CSV','export_event'));
+  S.showPostExport=true;render();
+}
+function doExportJSON(){
+  dlFile(JSON.stringify({records:S.savedTeeth,audit_log:S.auditLog},null,2),`MASTER_V21_${S.patient.DKZ_Code||'session'}.json`,'application/json');
+  S.auditLog.push(mkAudit('SESSION','export','','JSON',S.examiner,'Export JSON','export_event'));
+  S.showPostExport=true;render();
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function $(id){return document.getElementById(id)}
+function renderSessionBar(){
+  const el=$('draft-saved');
+  if(el){el.style.opacity=S.draftSaved?1:0;el.textContent='Draft Saved ✓';el.style.color='#2e7d32'}
+}
+
+function render(){
+  if(S.phase==='checking'){document.getElementById('app').innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-height:80vh"><p style="color:#8a92a0;font-weight:600;font-size:14px">Checking for previous session…</p></div>';return}
+  if(S.phase==='offer'){renderOffer();return}
+  renderMain();
+}
+
+function renderOffer(){
+  const s=S.recovered,cnt=Array.isArray(s?.savedTeeth)?s.savedTeeth.length:0;
+  const pat=s?.patient?(s.patient.DKZ_Code||'—')+' '+(s.patient.Patient_Name||''):'Unknown';
+  document.getElementById('app').innerHTML=`
+  <div style="display:flex;align-items:center;justify-content:center;min-height:90vh;padding:16px">
+    <div class="modal" style="max-width:400px">
+      <h2 style="font-size:17px;font-weight:800;margin-bottom:8px">Previous session found</h2>
+      <p style="font-size:12.5px;color:#5b6472;margin-bottom:16px;line-height:1.5">Unsaved annotation data was found from a previous session.</p>
+      <div style="background:#f7f9fb;border-radius:8px;padding:12px;margin-bottom:18px;font-size:12px;border:1px solid #e2e6ec">
+        <div style="margin-bottom:4px"><b>Patient:</b> ${pat}</div>
+        <div style="margin-bottom:4px"><b>Records:</b> ${cnt}</div>
+        <div><b>Last activity:</b> ${s?.savedAtWallClock?new Date(s.savedAtWallClock).toLocaleString():'Unknown'}</div>
+      </div>
+      <div class="flex gap8">
+        <button class="btn btn-primary" style="flex:1" onclick="continueSession()">Continue Previous</button>
+        <button class="btn" style="flex:1;border-color:#f0b3ae;color:#b3261e" onclick="newSession()">Start New</button>
+      </div>
+      <p style="font-size:10.5px;color:#9aa1ab;margin-top:12px;text-align:center">"Start New" permanently discards the data above.</p>
+    </div>
+  </div>`;
+}
+
+function renderMain(){
+  const pt=S.savedTeeth.filter(t=>t.DKZ_Code===S.patient.DKZ_Code);
+  const ft=S.savedTeeth.filter(t=>t.DKZ_Code===S.patient.DKZ_Code&&t.Image_ID===S.frame.Image_ID);
+  const m=Math.floor(S.elapsed/60),s2=S.elapsed%60;
+  const {errs,warns,badges,inc}=validate(S.current);
+  const canSave=errs.length===0&&inc.length===0&&(warns.length===0||S._ackWarn);
+
+  let html=`
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+    <div>
+      <h1>DenteKidz DAF-V11</h1>
+      <div class="subtitle">MVP v3.1.1 — PWA Standalone</div>
+    </div>
+    <div class="timer" id="timer" style="color:${S.elapsed>900?'#b3261e':'#1d4ed8'}">${p(m)}:${p(s2)}<div style="font-size:9px;color:#9aa1ab">target &lt;15:00</div></div>
+  </div>
+
+  <div class="card mb12" style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+    <div style="flex:1;min-width:120px"><label>Examiner</label><input id="inp-ex" value="${S.examiner}" oninput="S.examiner=this.value;schedSave()"></div>
+    <div><label>Round</label><select onchange="S.round=this.value;schedSave()" style="width:75px">
+      ${['1','2','Blind'].map(r=>`<option ${S.round===r?'selected':''}>${r}</option>`).join('')}
+    </select></div>
+    <div style="text-align:right"><div style="font-size:10px;color:#5b6472;font-weight:600">Patient total</div><div style="font-size:16px;font-weight:800">${pt.length} rows</div></div>
+  </div>
+
+  <div class="session-bar">
+    <div class="session-cell"><div class="session-label">Session Start</div><div class="session-val">${ft(S.startTime)}<br><span style="font-size:9px;color:#8a92a0">${fd(S.startTime)}</span></div></div>
+    <div class="session-cell"><div class="session-label">Last Saved</div><div class="session-val" style="color:${S.lastSavedAt?'#2a3550':'#b3b8c0'}">${ft(S.lastSavedAt)}</div></div>
+    <div class="session-cell"><div class="session-label">Total Records</div><div class="session-val">${S.savedTeeth.length}</div></div>
+    <div class="session-cell"><span id="draft-saved" class="draft-saved" style="opacity:${S.draftSaved?1:0};color:#2e7d32">Draft Saved ✓</span></div>
+  </div>`;
+
+  // PATIENT
+  if(S.patientLocked){
+    html+=`<div class="card-dark mb12">
+      <span style="font-weight:800;font-size:11px;flex-shrink:0">PATIENT</span>
+      <span class="mono" style="color:#8fb3ff;flex-shrink:0">${S.patient.DKZ_Code||'—'}</span>
+      <span style="opacity:.85;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${S.patient.Patient_Name||'—'}</span>
+      <button class="btn" style="font-size:10.5px;padding:3px 8px;background:transparent;border-color:#f0d999;color:#ffd54f;flex-shrink:0" onclick="S.showDKZModal=true;render()">✎ DKZ</button>
+      <button class="btn" style="font-size:10.5px;padding:3px 8px;background:transparent;border-color:#4a5468;color:#c4cad4;flex-shrink:0" onclick="editPatient()">Change</button>
+    </div>`;
+  } else {
+    html+=`<div class="card mb12">
+      <div style="font-size:13px;font-weight:700;margin-bottom:10px">Step 1 — Patient</div>
+      <div class="flex gap12 mb10" style="flex-wrap:wrap">
+        <div style="flex:1;min-width:100px"><label>DKZ_Code</label><input id="inp-dkz" class="mono" value="${S.patient.DKZ_Code}" oninput="S.patient.DKZ_Code=this.value;updConfBtn()"></div>
+        <div style="flex:2;min-width:140px"><label>Patient_Name</label><input id="inp-nm" value="${S.patient.Patient_Name}" oninput="S.patient.Patient_Name=this.value;updConfBtn()"></div>
+      </div>
+      <button id="btn-conf" class="btn btn-primary" ${(!S.patient.DKZ_Code||!S.patient.Patient_Name)?'disabled':''} onclick="lockPatient()">Confirm Patient →</button>
+    </div>`;
+  }
+
+  // FRAME
+  if(S.patientLocked){
+    if(S.frameLocked){
+      const cls=S.frame.Image_Classification;
+      const clsC=cls==='PRIMARY'?'#2e7d32':cls==='SECONDARY_IMAGE'?'#92660a':'#b3261e';
+      const clsBg=cls==='PRIMARY'?'#e8f5e9':cls==='SECONDARY_IMAGE'?'#fff7e6':'#fdecec';
+      html+=`<div class="frame-locked mb12">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="font-weight:800;color:#1d4ed8;font-size:11px">FRAME LOCKED</span>
+          <span style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;background:${clsBg};color:${clsC}">${cls||'—'}</span>
+          ${FRAME_FIELDS.map(f=>`<span style="font-size:11px"><span style="opacity:.6">${LBL[f]}:</span><b>${S.frame[f]||'—'}</b></span>`).join('')}
+          <button class="btn" style="font-size:10.5px;padding:3px 9px;margin-left:auto" onclick="unlockFrame()">Edit</button>
+        </div>
+        ${cls!=='PRIMARY'?`<div style="margin-top:6px;font-size:11.5px;font-weight:700;color:${clsC}">⛔ Tooth Entry disabled — ${cls}</div>`:''}
+      </div>`;
+    } else {
+      const canLock=FRAME_FIELDS.every(f=>S.frame[f])&&!!S.frame.Image_Classification&&(S.frame.Image_Classification!=='SECONDARY_IMAGE'||!!S.frame.Primary_Image_ID);
+      html+=`<div class="card mb12">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px">
+          <div style="font-size:13px;font-weight:700">Step 2 — Frame</div>
+          ${S.prevFrame?`<button class="btn" style="font-size:11px;padding:4px 9px" onclick="copyPrev()">↻ Same as previous</button>`:''}
+        </div>
+        <div class="field-group">
+          <div style="flex:1;min-width:120px"><label>Image_ID</label><input class="mono" style="font-size:13px" value="${S.frame.Image_ID}" oninput="S.frame.Image_ID=this.value;schedSave()"></div>
+          ${['View','Region','Camera_Angle','Jaw','Frame_Coverage'].map(f=>`
+          <div class="field-box"><label>${LBL[f]}</label>
+            <select onchange="S.frame['${f}']=this.value;schedSave();render()">
+              <option value="">—</option>${CODES[f].map(o=>`<option ${S.frame[f]===o?'selected':''}>${o}</option>`).join('')}
+            </select></div>`).join('')}
+        </div>
+        <div style="background:#fbfcfe;border:1px dashed #c4cad4;border-radius:8px;padding:10px;margin-bottom:10px">
+          <div class="field-box mb10"><label>Image_Classification</label>
+            <select onchange="S.frame.Image_Classification=this.value;schedSave();render()">
+              <option value="">—</option>${CODES.Image_Classification.map(o=>`<option ${S.frame.Image_Classification===o?'selected':''}>${o}</option>`).join('')}
+            </select>
+          </div>
+          <div class="mb10"><label>Image_Note (optional)</label><input value="${S.frame.Image_Note||''}" oninput="S.frame.Image_Note=this.value;schedSave()"></div>
+          ${S.frame.Image_Classification==='SECONDARY_IMAGE'?`<div><label style="color:#92660a;font-weight:700">Primary_Image_ID (required)</label><input style="border-color:#f0d999;background:#fffaf0" value="${S.frame.Primary_Image_ID||''}" oninput="S.frame.Primary_Image_ID=this.value;schedSave()"></div>`:''}
+        </div>
+        <button class="btn btn-primary" ${canLock?'':'disabled'} onclick="lockFrame()">Lock Frame →</button>
+        ${!canLock?'<span style="font-size:11px;color:#9aa1ab;margin-left:8px">Fill all fields</span>':''}
+      </div>`;
+    }
+  }
+
+  // TOOTH ENTRY
+  if(S.patientLocked&&S.frameLocked&&S.frame.Image_Classification==='PRIMARY'){
+    const t=S.current;
+    html+=`
+    ${S.toothConfirm?`<div class="save-confirm">✓ Tooth #${S.toothConfirm.num} saved — ${S.toothConfirm.cnt} rows total</div>`:''}
+    <div style="font-size:13px;font-weight:700;margin-bottom:8px">${S.editingUuid?'Editing tooth row':`Step 3 — Tooth entry (${ft.length} this frame)`}</div>
+    <div class="card mb10">
+      <div class="field-group">
+        <div class="field-box"><label>${LBL.Tooth_Number}</label>
+          <select style="min-width:68px" onchange="updTooth('Tooth_Number',this.value)">
+            <option value="">—</option>${TOOTH_NUMS.map(o=>`<option ${t.Tooth_Number===o?'selected':''}>${o}</option>`).join('')}
+          </select>
+        </div>
+        ${TOOTH_FIELDS.slice(1).map(f=>`
+        <div class="field-box">
+          <label>${LBL[f]}</label>
+          <select ${f==='Missing_Code'&&t.Tooth_Type==='R'?'disabled':''}
+            style="min-width:68px;${t._auto[f]?'border-color:#c98a2b;background:#fdf6ea':''}"
+            onchange="updTooth('${f}',this.value)">
+            <option value="">—</option>${CODES[f].map(o=>`<option ${t[f]===o?'selected':''}>${o}</option>`).join('')}
+          </select>
+          ${t._auto[f]?`<span class="auto-tag">auto</span>`:''}
+        </div>`).join('')}
+      </div>
+      ${badges.length?`<div style="margin-bottom:8px">${badges.map(b=>`<span class="badge badge-${b.c}">${b.t}</span>`).join('')}</div>`:''}
+      <div style="margin-bottom:8px">
+        <label>Any ${t.Tooth_Number==='X'?'<span style="color:#b3261e">(required)</span>':''}</label>
+        <input id="any-inp" value="${(t.Any||'').replace(/"/g,'&quot;')}"
+          placeholder="${t.Tooth_Number==='X'?'Required: basis for X...':'Optional observation...'}"
+          style="${t.Tooth_Number==='X'?'border-color:#f0b3ae;background:#fff8f7':''}"
+          oninput="S.current.Any=this.value">
+      </div>
+      ${errs.map(e=>`<div class="err">⛔ ${e}</div>`).join('')}
+      ${warns.length?`<div class="warn-box">${warns.map(w=>`<div style="font-size:12px;color:#92660a;margin-bottom:4px">⚠ ${w}</div>`).join('')}
+        <label style="font-size:12px;display:flex;align-items:center;gap:6px;cursor:pointer">
+          <input type="checkbox" ${S._ackWarn?'checked':''} onchange="S._ackWarn=this.checked;render()"> Acknowledged
+        </label></div>`:''}
+      ${inc.length>0&&inc.length<TOOTH_FIELDS.length?`<div class="incomplete">Incomplete: ${inc.map(f=>LBL[f]).join(', ')}</div>`:''}
+      ${S.dupWarn?`<div class="err" style="background:#fdecec;padding:8px;border-radius:6px;margin-bottom:8px">⛔ ${S.dupWarn}</div>`:''}
+      <div class="flex gap8">
+        <button class="btn btn-primary" ${canSave?'':'disabled'} onclick="saveTooth()">${S.editingUuid?'Save changes':'Save Tooth →'}</button>
+        ${S.editingUuid?`<button class="btn" onclick="cancelEdit()">Cancel</button>`:''}
+      </div>
+    </div>
+    ${ft.length?`<div style="margin-bottom:14px">${ft.map(t=>rowHTML(t)).join('')}</div>`:''}
+    <div class="flex gap8 mb12" style="flex-wrap:wrap">
+      <button class="btn btn-subtle" onclick="newFrame()">New Frame</button>
+      <button class="btn btn-subtle" onclick="newPatient()">New Patient</button>
+    </div>`;
+  }
+
+  if(S.patientLocked&&S.frameLocked&&S.frame.Image_Classification!=='PRIMARY'){
+    html+=`<div class="flex gap8 mb12"><button class="btn btn-subtle" onclick="newFrame()">New Frame</button><button class="btn btn-subtle" onclick="newPatient()">New Patient</button></div>`;
+  }
+
+  // OTHER FRAMES
+  const other=pt.filter(t=>t.Image_ID!==S.frame.Image_ID);
+  if(other.length){
+    html+=`<details style="margin-bottom:14px"><summary>Other frames for ${S.patient.DKZ_Code} (${other.length} rows)</summary>
+    <div style="margin-top:8px">${other.map(t=>rowHTML(t)).join('')}</div></details>`;
+  }
+
+  // IMPORT
+  html+=`<div class="card mb12">
+    <div style="font-size:14px;font-weight:700;margin-bottom:4px">Import از فایل قدیمی</div>
+    <div style="font-size:12px;color:#6a7280;margin-bottom:10px;line-height:1.5">
+      فایل XLS یا CSV نسخه قبلی را بارگذاری کنید.
+      ${S.patient.DKZ_Code&&S.patientLocked?`فقط ردیف‌های <b style="color:#1d4ed8">${S.patient.DKZ_Code}</b> اضافه می‌شوند.`:'ابتدا بیمار را Confirm کنید.'}
+    </div>
+    <input type="file" id="imp-file" accept=".csv,.xls,.xlsx" style="display:none" onchange="handleImport(this)">
+    <button class="btn btn-warn" ${S.patientLocked?'':'disabled'} onclick="document.getElementById('imp-file').click()">↑ Import CSV / XLS</button>
+    ${!S.patientLocked?'<span style="font-size:11px;color:#9aa1ab;margin-left:8px">ابتدا Confirm کنید</span>':''}
+    ${S.importResult?impHTML():''}
+  </div>`;
+
+  // EXPORT
+  html+=`<div class="card">
+    <div style="font-size:14px;font-weight:700;margin-bottom:4px">Export</div>
+    <div style="font-size:12px;color:#6a7280;margin-bottom:10px">${S.savedTeeth.length} total rows · ${S.auditLog.length} audit entries</div>
+    <div class="flex gap8" style="flex-wrap:wrap">
+      <button class="btn btn-primary" ${S.savedTeeth.length?'':'disabled'} onclick="doExportXLS()">Export Excel (.xls)</button>
+      <button class="btn" ${S.savedTeeth.length?'':'disabled'} onclick="doExportCSV()">Export CSV</button>
+      <button class="btn" ${S.savedTeeth.length?'':'disabled'} onclick="doExportJSON()">Export JSON</button>
+    </div>
+  </div>`;
+
+  // DKZ MODAL
+  if(S.showDKZModal){
+    html+=`<div class="modal-overlay">
+      <div class="modal">
+        <div style="font-size:17px;font-weight:800;margin-bottom:8px">✎ Edit DKZ_Code</div>
+        <div style="font-size:12.5px;color:#5b6472;margin-bottom:16px;line-height:1.6">تمام ${pt.length} ردیف آپدیت می‌شوند.</div>
+        <div style="margin-bottom:8px"><label>Current</label>
+          <div class="mono" style="font-size:15px;color:#b3261e;padding:8px;background:#fdecec;border-radius:6px">${S.patient.DKZ_Code}</div>
+        </div>
+        <div style="margin-bottom:16px"><label>Corrected</label><input id="dkz-new" class="mono" style="font-size:15px" value="${S.patient.DKZ_Code}"></div>
+        <div class="flex gap8">
+          <button class="btn btn-primary" style="flex:1" onclick="applyDKZ()">Apply</button>
+          <button class="btn" onclick="S.showDKZModal=false;render()">Cancel</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // POST EXPORT MODAL
+  if(S.showPostExport){
+    html+=`<div class="modal-overlay">
+      <div class="modal">
+        <div style="font-size:16px;font-weight:800;margin-bottom:8px">Export complete</div>
+        <div style="font-size:13px;color:#5b6472;margin-bottom:16px;line-height:1.5">Keep this session or clear it?</div>
+        <div class="flex gap8" style="flex-direction:column">
+          <button class="btn" onclick="S.showPostExport=false;render()">Keep Session</button>
+          <button class="btn btn-danger" onclick="clearSession()">Clear Session</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('app').innerHTML=html;
+}
+
+function impHTML(){
+  const r=S.importResult;
+  if(r.error)return`<div class="import-err">⛔ ${r.error}</div>`;
+  if(r.added===0)return`<div class="import-warn">⚠ ردیف جدیدی پیدا نشد (${r.skipped} تکراری)</div>`;
+  return`<div class="import-ok">✓ ${r.added} ردیف اضافه شد${r.skipped?` · ${r.skipped} تکراری`:''}</div>`;
+}
+
+function rowHTML(t){
+  return`<div class="saved-row">
+    <span class="tooth-num">#${t.Tooth_Number||'?'}</span>
+    ${TOOTH_FIELDS.slice(1).map(f=>`<span style="${t._auto&&t._auto[f]?'color:#a8731f':''}">${t[f]||'·'}</span>`).join('')}
+    <span class="spacer"></span>
+    <button class="btn" onclick="editTooth('${t.uuid}')">Edit</button>
+    <button class="btn" style="border-color:#f0b3ae;color:#b3261e" onclick="delTooth('${t.uuid}')">✕</button>
+  </div>`;
+}
+
+// ============================================================
+// ACTIONS
+// ============================================================
+function updConfBtn(){const b=document.getElementById('btn-conf');if(b)b.disabled=!S.patient.DKZ_Code||!S.patient.Patient_Name}
+function lockPatient(){S.patientLocked=true;schedSave();render()}
+function editPatient(){S.patientLocked=false;S.frameLocked=false;schedSave();render()}
+function applyDKZ(){
+  const el=document.getElementById('dkz-new');if(!el)return;
+  const nc=el.value.trim();if(!nc)return;
+  const old=S.patient.DKZ_Code;
+  S.patient.DKZ_Code=nc;
+  S.savedTeeth=S.savedTeeth.map(t=>t.DKZ_Code===old?{...t,DKZ_Code:nc,Row_ID:t.Row_ID?t.Row_ID.replace(`DKZ-${old}-`,`DKZ-${nc}-`):t.Row_ID}:t);
+  S.auditLog.push(mkAudit('PATIENT','DKZ_Code',old,nc,S.examiner,`DKZ corrected ${old}→${nc}`,'manual_correction'));
+  S.showDKZModal=false;schedSave();render();
+}
+function lockFrame(){
+  S.frameLocked=true;
+  S.auditLog.push(mkAudit(`FRAME:${S.frame.Image_ID}`,'Image_Classification','',S.frame.Image_Classification,S.examiner,'Frame locked','classification_event'));
+  if(S.frame.Image_Classification!=='PRIMARY'){
+    S.rowSeq++;
+    const rec={uuid:uid(),DKZ_Code:S.patient.DKZ_Code,Patient_Name:S.patient.Patient_Name,...S.frame,
+      Tooth_Number:'',Visibility:'',Tooth_Type:'',Missing_Code:'',Eruption:'',Caries:'',Restoration:'',Plaque:'',Gingivitis:'',Recession:'',Alignment:'',BBO:'',Wear:'',Tartar:'',Any:'',
+      Annotator:S.examiner,Examiner_ID:S.examiner,Annotation_Round:S.round,Date:new Date().toISOString(),
+      Row_ID:`DKZ-${S.patient.DKZ_Code}-${S.frame.Frame_Coverage}-FRAME-${String(S.rowSeq).padStart(6,'0')}`,
+      AutoTimestamp:new Date().toISOString(),_auto:{},_frameOnly:true};
+    S.savedTeeth.push(rec);S.lastSavedAt=Date.now();
+  }
+  schedSave();render();
+}
+function unlockFrame(){S.savedTeeth=S.savedTeeth.filter(t=>!(t._frameOnly&&t.Image_ID===S.frame.Image_ID&&t.DKZ_Code===S.patient.DKZ_Code));S.frameLocked=false;schedSave();render()}
+function copyPrev(){if(S.prevFrame)S.frame={...S.prevFrame};render()}
+function newFrame(){S.prevFrame={...S.frame};S.frame=emptyFrame();S.frameLocked=false;S.current=emptyTooth();S.editingUuid=null;schedSave();render()}
+function newPatient(){S.patient={DKZ_Code:'',Patient_Name:''};S.patientLocked=false;S.frame=emptyFrame();S.frameLocked=false;S.prevFrame=null;S.current=emptyTooth();S.editingUuid=null;schedSave();render()}
+
+function updTooth(field,val){S.current=cascade(S.current,field,val);S._ackWarn=false;render()}
+
+function saveTooth(){
+  const t=S.current;
+  const dup=S.savedTeeth.find(x=>x.DKZ_Code===S.patient.DKZ_Code&&x.Image_ID===S.frame.Image_ID&&x.Tooth_Number===t.Tooth_Number&&x.uuid!==t.uuid);
+  if(dup&&S.editingUuid!==dup.uuid){S.dupWarn=`Tooth ${t.Tooth_Number} already saved for Image ${S.frame.Image_ID}.`;render();return}
+  S.dupWarn=null;S.rowSeq++;
+  const isNew=!S.editingUuid;
+  const seq=String(S.rowSeq).padStart(6,'0');
+  const rowId=isNew?`DKZ-${S.patient.DKZ_Code}-${S.frame.Frame_Coverage}-T${t.Tooth_Number||'X'}-${seq}`:t.Row_ID;
+  const rec={...t,DKZ_Code:S.patient.DKZ_Code,Patient_Name:S.patient.Patient_Name,
+    ...Object.fromEntries(FRAME_FIELDS.map(f=>[f,S.frame[f]])),
+    Image_Classification:S.frame.Image_Classification,Image_Note:S.frame.Image_Note,Primary_Image_ID:S.frame.Primary_Image_ID,
+    Annotator:S.examiner,Examiner_ID:S.examiner,Annotation_Round:S.round,Date:new Date().toISOString(),
+    Row_ID:rowId,AutoTimestamp:isNew?new Date().toISOString():t.AutoTimestamp};
+  if(S.editingUuid){S.savedTeeth=S.savedTeeth.map(x=>x.uuid===S.editingUuid?rec:x);S.editingUuid=null}
+  else{
+    S.savedTeeth.push(rec);
+    const cnt=S.savedTeeth.filter(x=>x.DKZ_Code===S.patient.DKZ_Code).length;
+    S.toothConfirm={num:rec.Tooth_Number,cnt};
+    setTimeout(()=>{S.toothConfirm=null;render()},2500);
+  }
+  S.lastSavedAt=Date.now();S.current=emptyTooth();S._ackWarn=false;schedSave();render();
+}
+function editTooth(uuid){const t=S.savedTeeth.find(x=>x.uuid===uuid);if(t){S.current={...t,_auto:t._auto||{}};S.editingUuid=uuid;S.dupWarn=null;render();window.scrollTo(0,300)}}
+function delTooth(uuid){S.savedTeeth=S.savedTeeth.filter(x=>x.uuid!==uuid);if(S.editingUuid===uuid){S.current=emptyTooth();S.editingUuid=null}schedSave();render()}
+function cancelEdit(){S.current=emptyTooth();S.editingUuid=null;S.dupWarn=null;render()}
+
+function handleImport(inp){
+  const file=inp.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const text=ev.target.result;
+      let rows=text.trimStart().startsWith('<?xml')||text.includes('urn:schemas-microsoft-com')?parseXML(text):parseCSV(text);
+      if(!rows.length){S.importResult={error:'فایل خالی یا فرمت ناشناخته'};render();return}
+      const existing=new Set(S.savedTeeth.map(t=>t.Row_ID).filter(Boolean));
+      const toAdd=rows.filter(r=>{
+        if(S.patient.DKZ_Code&&r.DKZ_Code!==S.patient.DKZ_Code)return false;
+        if(r.Row_ID&&existing.has(r.Row_ID))return false;
+        return true;
+      });
+      if(!toAdd.length){S.importResult={added:0,skipped:rows.length};render();return}
+      S.savedTeeth.push(...toAdd.map(r=>({...r,uuid:uid(),_auto:{},_imported:true})));
+      S.auditLog.push(mkAudit('SESSION','import','',`${toAdd.length} records`,S.examiner,`Import: ${file.name}`,'import_event'));
+      S.lastSavedAt=Date.now();S.importResult={added:toAdd.length,skipped:rows.length-toAdd.length};
+      schedSave();render();
+    }catch(e){S.importResult={error:'خطا: '+e.message};render()}
+  };
+  reader.readAsText(file);inp.value='';
+}
+
+async function clearSession(){
+  await idbClear();S.showPostExport=false;
+  S.patient={DKZ_Code:'',Patient_Name:''};S.patientLocked=false;
+  S.frame=emptyFrame();S.frameLocked=false;S.prevFrame=null;
+  S.savedTeeth=[];S.auditLog=[];S.current=emptyTooth();S.editingUuid=null;
+  S.lastSavedAt=null;S.startTime=Date.now();render();
+}
+function continueSession(){
+  const s=S.recovered;if(!s){S.phase='ready';render();return}
+  Object.assign(S,{patient:s.patient||{DKZ_Code:'',Patient_Name:''},patientLocked:!!s.patientLocked,
+    frame:s.frame||emptyFrame(),frameLocked:!!s.frameLocked,prevFrame:s.prevFrame||null,
+    examiner:s.examiner||'Dr. Tabari',round:s.round||'1',
+    savedTeeth:s.savedTeeth||[],auditLog:s.auditLog||[],
+    lastSavedAt:s.lastSavedAt||null,startTime:s.startTime||Date.now()});
+  if(Array.isArray(s.savedTeeth)){let mx=0;s.savedTeeth.forEach(t=>{const m=t.Row_ID&&t.Row_ID.match(/-(\d{6})$/);if(m){const n=parseInt(m[1],10);if(n>mx)mx=n}});S.rowSeq=mx}
+  S.phase='ready';S.recovered=null;render();
+}
+async function newSession(){await idbClear();S.recovered=null;S.phase='ready';render()}
+
+// ============================================================
+// STARTUP
+// ============================================================
+(async()=>{
+  const session=await idbLoad();
+  if(session&&Array.isArray(session.savedTeeth)&&session.savedTeeth.length>0){S.recovered=session;S.phase='offer'}
+  else{S.phase='ready'}
+  render();
+})();
+</script>
+</body>
+</html>
